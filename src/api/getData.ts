@@ -96,25 +96,5 @@ export async function downloadPVData(options: DownloadOptions): Promise<void> {
 
 export default downloadPVData;
 
-// CLI usage: ts-node src/api/getData.ts <pv> <timeSpan> [outputFile] [pemPath]
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const [, , pv, timeSpan, outputFileArg, pemPathArg] = process.argv;
-
-  if (!pv || !timeSpan) {
-    console.error('Usage: ts-node src/api/getData.ts <pv> <timeSpan> [outputFile] [pemPath]');
-    console.error('Example: ts-node src/api/getData.ts L3-SBW4-PM311:Energy 1d data.csv ./geant_issue.pem');
-    process.exit(1);
-  }
-
-  const outputFile = outputFileArg || 'data.csv';
-  const pemPath = pemPathArg || './geant_issue.pem';
-
-  downloadPVData({ pv, timeSpan, outputFile, pemPath })
-    .then(() => process.exit(0))
-    .catch((err) => {
-      console.error('Error:', err);
-      process.exit(1);
-    });
-}
 
 
