@@ -1,0 +1,120 @@
+import https from 'https';
+import { createWriteStream, existsSync, readFileSync } from 'fs';
+
+type DownloadFormat = 'csv' | 'json';
+
+export interface DownloadOptions {
+  pv: string;
+  timeSpan: string; // e.g., "1d", "12h", "30m"
+  outputFile: string; // e.g., "data.csv"
+  pemPath: string; // path to certificate PEM file
+  hostname?: string; // default: servicestatus.eli-beams.eu
+  port?: number; // default: 7000
+  format?: DownloadFormat; // default: 'csv'
+  rejectUnauthorized?: boolean; // default: true
+}
+
+function createHttpsAgent(pemPath: string, rejectUnauthorized: boolean = true): https.Agent {
+  if (!existsSync(pemPath)) {
+    throw new Error(`PEM certificate file not found at path: ${pemPath}`);
+  }
+
+  const pemContent = readFileSync(pemPath);
+  return new https.Agent({
+    ca: pemContent,
+    rejectUnauthorized,
+  });
+}
+
+export async function downloadPVData(options: DownloadOptions): Promise<void> {
+  const {
+    pv,
+    timeSpan,
+    outputFile,
+    pemPath,
+    hostname = 'servicestatus.eli-beams.eu',
+    port = 7000,
+    format = 'csv',
+    rejectUnauthorized = true,
+  } = options;
+
+  const httpsAgent = createHttpsAgent(pemPath, rejectUnauthorized);
+
+  const path = `/variable/retrieve/${encodeURIComponent(pv)}?duration=${encodeURIComponent(timeSpan)}&format=${encodeURIComponent(format)}`;
+
+  const requestOptions: https.RequestOptions = {
+    hostname,
+    port,
+    path,
+    method: 'GET',
+    agent: httpsAgent,
+  };
+
+  await new Promise<void>((resolve, reject) => {
+    const writeStream = createWriteStream(outputFile);
+
+    const req = https.request(requestOptions, (res) => {
+      const statusCode = res.statusCode ?? 0;
+      const statusMessage = res.statusMessage ?? '';
+
+      console.log('statusCode:', statusCode);
+      console.log('headers:', res.headers);
+
+      if (statusCode < 200 || statusCode >= 300) {
+        let body = '';
+        res.setEncoding('utf8');
+        res.on('data', (chunk) => (body += chunk));
+        res.on('end', () => {
+          reject(new Error(`Request failed (${statusCode} ${statusMessage}). Body: ${body}`));
+        });
+        return;
+      }
+
+      res.pipe(writeStream);
+
+      res.on('error', (err) => {
+        reject(err);
+      });
+
+      writeStream.on('finish', () => {
+        console.log(`File written to ${outputFile}`);
+        resolve();
+      });
+
+      writeStream.on('error', (err) => {
+        reject(err);
+      });
+    });
+
+    req.on('error', (e) => {
+      reject(e);
+    });
+
+    req.end();
+  });
+}
+
+export default downloadPVData;
+
+// CLI usage: ts-node src/api/getData.ts <pv> <timeSpan> [outputFile] [pemPath]
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const [, , pv, timeSpan, outputFileArg, pemPathArg] = process.argv;
+
+  if (!pv || !timeSpan) {
+    console.error('Usage: ts-node src/api/getData.ts <pv> <timeSpan> [outputFile] [pemPath]');
+    console.error('Example: ts-node src/api/getData.ts L3-SBW4-PM311:Energy 1d data.csv ./geant_issue.pem');
+    process.exit(1);
+  }
+
+  const outputFile = outputFileArg || 'data.csv';
+  const pemPath = pemPathArg || './geant_issue.pem';
+
+  downloadPVData({ pv, timeSpan, outputFile, pemPath })
+    .then(() => process.exit(0))
+    .catch((err) => {
+      console.error('Error:', err);
+      process.exit(1);
+    });
+}
+
+

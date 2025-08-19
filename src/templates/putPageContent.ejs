@@ -1,0 +1,114 @@
+<table style="width:100%; border-collapse: collapse;" data-layout="default">
+    <tbody>
+      <tr>
+        <td style="border:1px solid #bbb; padding:8px;" colspan="2">
+          <h3 style="margin:0;"><%= locals.title || 'L1 ALLEGRA user time performance report' %></h3>
+        </td>
+        <td style="border:1px solid #bbb; padding:8px;" colspan="2">
+          <div style="font-size:12px; line-height:1.4;">
+            <div><strong>User campaign:</strong> <%= locals.campaign?.name || '' %></div>
+            <div><%= locals.campaign?.weeksLabel || '' %></div>
+            <div><%= locals.campaign?.dateRange || '' %></div>
+          </div>
+        </td>
+      </tr>
+  
+      <!-- Requested specifications -->
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px; background:#f3f3f3;" colspan="4">
+          <strong>REQUESTED SPECIFICATIONS</strong>
+        </td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px; width:25%;">pulse energy:</td>
+        <td style="border:1px solid #bbb; padding:6px;" colspan="3"><%= locals.specs?.pulseEnergy || '' %></td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px;">pulse duration:</td>
+        <td style="border:1px solid #bbb; padding:6px;" colspan="3"><%= locals.specs?.pulseDuration || '' %></td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px;">wavelength:</td>
+        <td style="border:1px solid #bbb; padding:6px;" colspan="3"><%= locals.specs?.wavelength || '' %></td>
+      </tr>
+  
+      <!-- Hour count -->
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px; background:#f3f3f3;" colspan="4">
+          <strong>HOUR COUNT</strong>
+        </td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px; width:25%;"><strong>TOTAL ACTIVE DAYS:</strong></td>
+        <td style="border:1px solid #bbb; padding:6px; width:25%;"><strong>TOTAL ACTIVE HOURS:</strong></td>
+        <td style="border:1px solid #bbb; padding:6px; width:25%;">
+          <strong>USED ALIGNMENT BEAMTIME HOURS:</strong>
+          <div style="font-size:12px;">Main number from the archiver (number in brackets from the operator log)</div>
+        </td>
+        <td style="border:1px solid #bbb; padding:6px; width:25%;">
+          <strong>USED HIGH POWER BEAMTIME HOURS:</strong>
+          <div style="font-size:12px;">Main number from the archiver (number in brackets from the operator log)</div>
+        </td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px;"><%= locals.hourCount?.totalActiveDays ?? '' %></td>
+        <td style="border:1px solid #bbb; padding:6px;"><%= locals.hourCount?.totalActiveHours ?? '' %></td>
+        <td style="border:1px solid #bbb; padding:6px;">
+          <%= locals.hourCount?.usedAlignment?.archiver ?? '' %>
+          <% if (locals.hourCount?.usedAlignment?.operator != null && locals.hourCount.usedAlignment.operator !== '') { %>
+            (<%= locals.hourCount.usedAlignment.operator %>)
+          <% } %>
+        </td>
+        <td style="border:1px solid #bbb; padding:6px;">
+          <%= locals.hourCount?.usedHighPower?.archiver ?? '' %>
+          <% if (locals.hourCount?.usedHighPower?.operator != null && locals.hourCount.usedHighPower.operator !== '') { %>
+            (<%= locals.hourCount.usedHighPower.operator %>)
+          <% } %>
+        </td>
+      </tr>
+  
+      <!-- Energy graphs -->
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px; background:#f3f3f3;" colspan="4">
+          <strong>ENERGY GRAPHS</strong>
+          <div style="font-size:12px;">Time Zone: <%= locals.timezone || '' %></div>
+        </td>
+      </tr>
+      <% if (locals.weeks && Array.isArray(locals.weeks) && locals.weeks.length) { %>
+        <% locals.weeks.forEach(function(week){ %>
+          <tr>
+            <td style="border:1px solid #bbb; padding:6px;" colspan="4"><strong>WEEK <%= week.number || '' %></strong></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #bbb; padding:6px; height:140px;" colspan="4">
+              <% if (week.graphUrl) { %>
+                <img src="<%= week.graphUrl %>" alt="Week <%= week.number || '' %> energy graph" style="max-width:100%; height:auto;" />
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+      <% } else { %>
+        <tr>
+          <td style="border:1px solid #bbb; padding:6px; height:160px;" colspan="4"></td>
+        </tr>
+      <% } %>
+  
+      <!-- Dazzler settings -->
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px; background:#f3f3f3;" colspan="4"><strong>DAZZLER SETTINGS</strong></td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px;" colspan="4">
+          <% if (locals.dazzlerSettings && Array.isArray(locals.dazzlerSettings)) { %>
+            <ul style="margin:0; padding-left:18px;">
+              <% locals.dazzlerSettings.forEach(function(item){ %>
+                <li><%= item || '' %></li>
+              <% }); %>
+            </ul>
+          <% } else { %>
+            <%= locals.dazzlerSettings || '' %>
+          <% } %>
+        </td>
+      </tr>
+    </tbody>
+  </table>

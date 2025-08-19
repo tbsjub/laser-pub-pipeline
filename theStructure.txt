@@ -1,0 +1,39 @@
+project-root/
+│
+├── src/
+│   ├── api/                  # Everything talking to Confluence REST API
+│   │   ├── confluenceClient.ts  # Axios/fetch wrapper w/ auth & base URL
+│   │   ├── createPage.ts
+│   │   ├── getPage.ts
+│   │   ├── modifyPage.ts
+│   │   ├── fileUpload.ts
+│   │
+│   ├── data/                 # Fetching and transforming data
+│   │   ├── databaseClient.ts    # DB connection setup (with cert)
+│   │   ├── gettingData.ts       # Pulls raw data from DB
+│   │   ├── dataManipulation.ts  # Cleans, filters, aggregates data
+│   │   ├── chartGenerator.ts    # Creates charts (could be PNG or base64)
+│   │   ├── htmlToJSON.ts        # Transform for Confluence template
+│   │
+│   ├── templates/            # Page and chart templates
+│   │   ├── confluenceTemplate.ts # Static page layout
+│   │   ├── chartTemplate.ts     # Chart styles/themes
+│   │
+│   ├── config/               # Configurations & constants
+│   │   ├── dbConfig.ts          # DB credentials, cert paths
+│   │   ├── confluenceConfig.ts  # Atlassian space ID, API keys
+│   │
+│   ├── utils/                # Generic helpers
+│   │   ├── logger.ts            # Logging utility
+│   │   ├── fileUtils.ts         # Read/write helpers
+│   │
+│   ├── types/                # TypeScript interfaces & types
+│   │   ├── confluenceTypes.ts   # API request/response typings
+│   │   ├── dataTypes.ts         # Data structures from DB
+│   │
+│   ├── index.ts              # Main entry point
+│
+├── package.json
+├── tsconfig.json
+└── README.md
+
