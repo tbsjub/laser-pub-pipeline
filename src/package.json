@@ -7,6 +7,7 @@
     "builds": "tsc",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
+    "plot": "ts-node plotAllData.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:database": "ts-node src/comprehensiveDatabaseTest.ts",
     "test:basic": "ts-node src/testDatabase.ts",
@@ -17,17 +18,18 @@
   "license": "ISC",
   "type": "module",
   "devDependencies": {
+    "@types/ejs": "^3.1.5",
     "@types/node": "^24.2.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   },
   "dependencies": {
     "axios": "^1.11.0",
-    "canvas": "^3.1.2",
-    "chart.js": "^4.5.0",
     "cheerio": "^1.1.2",
+    "csv-parse": "^6.1.0",
     "csv-parser": "^3.2.0",
     "dotenv": "^17.2.1",
-    "ejs": "^3.1.10"
+    "ejs": "^3.1.10",
+    "nodeplotlib": "^1.1.2"
   }
 }

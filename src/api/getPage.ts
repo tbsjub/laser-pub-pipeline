@@ -8,7 +8,7 @@ interface GetPageResponse {
     id: string;
 }
 
-async function getPage(pageId: number): Promise<GetPageResponse | void> {
+async function getPage(pageId: number, outputPath: string): Promise<GetPageResponse | void> {
     console.log("Initiating REST request.....");
 
     const getRes = await axios.get(
@@ -24,8 +24,8 @@ async function getPage(pageId: number): Promise<GetPageResponse | void> {
         }
     );
     try {
-        await writeFile('.usefullPVS.html', getRes.data.body.storage.value, 'utf-8');
-        console.log("Useful PVS gotten successfully!");
+        await writeFile(outputPath, getRes.data.body.storage.value, 'utf-8');
+        console.log("Page gotton successfully at: ", outputPath);
     } catch (error) {
         console.error("Error getting page:", error);
     }

@@ -1,41 +1,57 @@
-import createPage from './api/createPage.js';
-import getPage from './api/getPage.js';
-import parseTable from './data/htmlToJSON.js';
-import updatePage from './api/updatePage.js';
-import getData from './api/getData.js'
 import { readFileSync, writeFileSync } from 'fs';
 import ejs from 'ejs';
-import { spaceKey } from './config/confluenceConfig.js';
+import getPage from './api/getPage';
+import parseConfluenceTable from './data/htmlToJSON';
+import getData from './api/getData';
+import createTimelineGraph from './templates/e5graph';
 
-// // createPage('CS', 'type script', 'This is a test page', 1616445503);
-// const pageId = 1682210847;
-// // const template = readFileSync('./templates/putPageContent.ejs', 'utf-8');
-// // const rendered = ejs.render(template, {})
-// const newTitle = 'The SHOT';
+const PVS: string[] = [ "L3-SBW4-PM311:Energy",
+  "L3-PSS:STATE_EXH_EXTERNAL_HIGH_P",
+  "L3-PSS:SGV501_IN_OPEN_POSITION",
+  "L3BT-VCS-SGV505:OPEN"
+];
 
-// // const template = readFileSync('./templates/putPageContent.ejs', 'utf-8');
-// // const rendered = ejs.render(template, {title: null}); // {} = your data object
-// // writeFileSync('./ejsRender.html', rendered, 'utf-8');
+async function run(): Promise<void> {
+  const pageId = 1687519372; // set your test page ID here
+  const downloadedHtmlPath = './templates/getPageContent.html';
+  const ejsTemplatePath = './templates/putPageContent.ejs';
+  const renderedOutputPath = './templates/ejsRender.html';
 
+  console.log('>>> 1) Downloading page...');
+  await getPage(pageId, downloadedHtmlPath);
 
+  console.log('>>> 2) Parsing HTML to JSON...');
+  const html = readFileSync(downloadedHtmlPath, 'utf-8');
+  const data = parseConfluenceTable(html);
+  console.log('Parsed data:', data);
 
+  // console.log('>>> 3) Rendering EJS with parsed data...');
+  // const template = readFileSync(ejsTemplatePath, 'utf-8');
+  // const rendered = ejs.render(template, data);
+  // writeFileSync(renderedOutputPath, rendered, 'utf-8');
 
-// const pv = "L3-PSS:STATE_EXH_EXTERNAL_HIGH_P";
-// const timeSpan = "1d";
-// const outputFile = "data/csvFile.csv";
-// const pemPath = "c://Users//sarita.pokhrel//Downloads//geant_issue.pem";
+  console.log('>>>3 ) getting the data: ');
+  if (PVS.length === 0) {
+    throw new Error('No PVs configured in PVS array.');
+  }
+  for (const pv of PVS) {
+    const pemPath = './geant_issue.pem';
+    const timeSpan = '1d';
+    const safeName = pv.replace(/[^a-zA-Z0-9-_\.]/g, '_');
+    const outputFile = `./data/${safeName}.csv`;
+    await getData({ pv, pemPath, timeSpan, outputFile, rejectUnauthorized: false });
+  }
 
+  console.log(`Rendered EJS written to ${renderedOutputPath}`);
 
-// getData({pv, timeSpan, outputFile, pemPath});
+  console.log('>>> 4) Creating timeline graph...');
+  const graphHTML = createTimelineGraph();
+  const graphOutputPath = './templates/timelineGraph.html';
+  writeFileSync(graphOutputPath, graphHTML, 'utf-8');
+  console.log(`Timeline graph written to ${graphOutputPath}`);
+}
 
-
-const rawId = 1687519372;
-const pagePath = "./templates/getPageContent.html";
-getPage(rawId, pagePath);
-const data = parseTable(pagePath);
-console.log(data);
-// const template = readFileSync('.templates/putPageContent.ejs');
-// const rendered = ejs.render(template, {});
-// writeFileSync('./templates/ejsRender.html', rendered, 'utf-8');
-// createPage(spaceKey, "Shot template", './templates/ejsRender.html', rawId);
-
+run().catch((err) => {
+  console.error(err);
+  process.exitCode = 1;
+});

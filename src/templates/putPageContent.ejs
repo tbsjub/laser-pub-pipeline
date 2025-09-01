@@ -6,9 +6,9 @@
         </td>
         <td style="border:1px solid #bbb; padding:8px;" colspan="2">
           <div style="font-size:12px; line-height:1.4;">
-            <div><strong>User campaign:</strong> <%= locals.campaign?.name || '' %></div>
-            <div><%= locals.campaign?.weeksLabel || '' %></div>
-            <div><%= locals.campaign?.dateRange || '' %></div>
+            <div><strong>User campaign:</strong> <%= locals.userCampaign || '' %></div>
+            <div><%= locals.weeksLabel || '' %></div>
+            <div><%= locals.dateRange || '' %></div>
           </div>
         </td>
       </tr>
@@ -21,15 +21,15 @@
       </tr>
       <tr>
         <td style="border:1px solid #bbb; padding:6px; width:25%;">pulse energy:</td>
-        <td style="border:1px solid #bbb; padding:6px;" colspan="3"><%= locals.specs?.pulseEnergy || '' %></td>
+        <td style="border:1px solid #bbb; padding:6px;" colspan="3"><%= locals.pulseEnergy || '' %></td>
       </tr>
       <tr>
         <td style="border:1px solid #bbb; padding:6px;">pulse duration:</td>
-        <td style="border:1px solid #bbb; padding:6px;" colspan="3"><%= locals.specs?.pulseDuration || '' %></td>
+        <td style="border:1px solid #bbb; padding:6px;" colspan="3"><%= locals.pulseDuration || '' %></td>
       </tr>
       <tr>
         <td style="border:1px solid #bbb; padding:6px;">wavelength:</td>
-        <td style="border:1px solid #bbb; padding:6px;" colspan="3"><%= locals.specs?.wavelength || '' %></td>
+        <td style="border:1px solid #bbb; padding:6px;" colspan="3"><%= locals.wavelength || '' %></td>
       </tr>
   
       <!-- Hour count -->
@@ -51,19 +51,13 @@
         </td>
       </tr>
       <tr>
-        <td style="border:1px solid #bbb; padding:6px;"><%= locals.hourCount?.totalActiveDays ?? '' %></td>
-        <td style="border:1px solid #bbb; padding:6px;"><%= locals.hourCount?.totalActiveHours ?? '' %></td>
+        <td style="border:1px solid #bbb; padding:6px;"><%= locals.totalActiveDays ?? '' %></td>
+        <td style="border:1px solid #bbb; padding:6px;"><%= locals.totalActiveHours ?? '' %></td>
         <td style="border:1px solid #bbb; padding:6px;">
-          <%= locals.hourCount?.usedAlignment?.archiver ?? '' %>
-          <% if (locals.hourCount?.usedAlignment?.operator != null && locals.hourCount.usedAlignment.operator !== '') { %>
-            (<%= locals.hourCount.usedAlignment.operator %>)
-          <% } %>
+          <%= locals.usedAlignmentBeamtimeHours ?? '' %>
         </td>
         <td style="border:1px solid #bbb; padding:6px;">
-          <%= locals.hourCount?.usedHighPower?.archiver ?? '' %>
-          <% if (locals.hourCount?.usedHighPower?.operator != null && locals.hourCount.usedHighPower.operator !== '') { %>
-            (<%= locals.hourCount.usedHighPower.operator %>)
-          <% } %>
+          <%= locals.usedHighPowerBeamtimeHours ?? '' %>
         </td>
       </tr>
   
@@ -71,7 +65,7 @@
       <tr>
         <td style="border:1px solid #bbb; padding:6px; background:#f3f3f3;" colspan="4">
           <strong>ENERGY GRAPHS</strong>
-          <div style="font-size:12px;">Time Zone: <%= locals.timezone || '' %></div>
+          <div style="font-size:12px;">Time Zone: <%= locals.timeZone || '' %></div>
         </td>
       </tr>
       <% if (locals.weeks && Array.isArray(locals.weeks) && locals.weeks.length) { %>
@@ -109,6 +103,116 @@
             <%= locals.dazzlerSettings || '' %>
           <% } %>
         </td>
+      </tr>
+
+      <!-- Beam Profile -->
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px; background:#f3f3f3;" colspan="4">
+          <strong>BEAM PROFILE</strong>
+        </td>
+      </tr>
+      <% if (locals.weeks && Array.isArray(locals.weeks) && locals.weeks.length) { %>
+        <% locals.weeks.forEach(function(week){ %>
+          <tr>
+            <td style="border:1px solid #bbb; padding:6px;" colspan="4"><strong>WEEK <%= week.number || '' %></strong></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #bbb; padding:6px; height:200px;" colspan="4">
+              <% if (week.beamProfileGraph) { %>
+                <img src="<%= week.beamProfileGraph %>" alt="Week <%= week.number || '' %> beam profile graph" style="max-width:100%; height:auto;" />
+              <% } else { %>
+                <div style="text-align:center; color:#666; padding:50px;">Beam Profile Graph Placeholder</div>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+      <% } else { %>
+        <tr>
+          <td style="border:1px solid #bbb; padding:6px; height:200px;" colspan="4">
+            <div style="text-align:center; color:#666; padding:50px;">No beam profile data available</div>
+          </td>
+        </tr>
+      <% } %>
+
+      <!-- Beam Pointing (RMS BY DAY) -->
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px; background:#f3f3f3;" colspan="4">
+          <strong>BEAM POINTING (RMS BY DAY)</strong>
+        </td>
+      </tr>
+      <% if (locals.weeks && Array.isArray(locals.weeks) && locals.weeks.length) { %>
+        <% locals.weeks.forEach(function(week){ %>
+          <tr>
+            <td style="border:1px solid #bbb; padding:6px;" colspan="4"><strong>WEEK <%= week.number || '' %></strong></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #bbb; padding:6px; height:200px;" colspan="4">
+              <% if (week.beamPointingGraph) { %>
+                <img src="<%= week.beamPointingGraph %>" alt="Week <%= week.number || '' %> beam pointing graph" style="max-width:100%; height:auto;" />
+              <% } else { %>
+                <div style="text-align:center; color:#666; padding:50px;">Beam Pointing Graph Placeholder</div>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+      <% } else { %>
+        <tr>
+          <td style="border:1px solid #bbb; padding:6px; height:200px;" colspan="4">
+            <div style="text-align:center; color:#666; padding:50px;">No beam pointing data available</div>
+          </td>
+        </tr>
+      <% } %>
+
+      <!-- Incidents -->
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px; background:#f3f3f3;" colspan="4">
+          <strong>INCIDENTS</strong>
+        </td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px; font-weight:bold; width:20%;">Date-time</td>
+        <td style="border:1px solid #bbb; padding:6px; font-weight:bold; width:80%;">Description</td>
+      </tr>
+      <!-- Empty rows for operator entries -->
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px; height:30px;"></td>
+        <td style="border:1px solid #bbb; padding:6px; height:30px;"></td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px; height:30px;"></td>
+        <td style="border:1px solid #bbb; padding:6px; height:30px;"></td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px; height:30px;"></td>
+        <td style="border:1px solid #bbb; padding:6px; height:30px;"></td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px; height:30px;"></td>
+        <td style="border:1px solid #bbb; padding:6px; height:30px;"></td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px; height:30px;"></td>
+        <td style="border:1px solid #bbb; padding:6px; height:30px;"></td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px; height:30px;"></td>
+        <td style="border:1px solid #bbb; padding:6px; height:30px;"></td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px; height:30px;"></td>
+        <td style="border:1px solid #bbb; padding:6px; height:30px;"></td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px; height:30px;"></td>
+        <td style="border:1px solid #bbb; padding:6px; height:30px;"></td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px; height:30px;"></td>
+        <td style="border:1px solid #bbb; padding:6px; height:30px;"></td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #bbb; padding:6px; height:30px;"></td>
+        <td style="border:1px solid #bbb; padding:6px; height:30px;"></td>
       </tr>
     </tbody>
   </table>
