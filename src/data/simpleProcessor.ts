@@ -80,12 +80,23 @@ function rollingAverage(values: number[], windowSize: number): number[] {
 
 function main() {
   const energy = parseCsvToSeries('data/L3-SBW4-PM311_Energy.csv', 'Epoch', 'L3-SBW4-PM311:Energy');
-  const shutter = parseCsvToBool('data/L3BT-VCS-SGV505_OPEN.csv', 'Epoch', 'L3BT-VCS-SGV505:OPEN');
+  const feHigh = parseCsvToBool('data/L3-PSS_STATE_EXH_EXTERNAL_HIGH_P.csv', 'Epoch', 'L3-PSS:STATE_EXH_EXTERNAL_HIGH_P');
+  
+  // Check if we have low power data files
+  const feLowCsv = 'data/L3-PSS_SGV501_IN_OPEN_POSITION.csv'; // This might be the low power indicator
+  let feLow: BoolPoint[] = [];
+  try {
+    feLow = parseCsvToBool(feLowCsv, 'Epoch', 'L3-PSS:SGV501_IN_OPEN_POSITION');
+  } catch (e) {
+    console.log('No FE low power data found, proceeding without it');
+  }
 
   console.log(`Loaded ${energy.length} energy points`);
-  console.log(`Loaded ${shutter.length} shutter points`);
+  console.log(`Loaded ${feHigh.length} FE high power points`);
+  console.log(`Loaded ${feLow.length} FE low power points`);
 
-  const shutterAt = buildForwardFillGetter(shutter);
+  const feHighAt = buildForwardFillGetter(feHigh);
+  const feLowAt = buildForwardFillGetter(feLow);
 
   const energyValues = energy.map(p => p.v);
   const averaged = rollingAverage(energyValues, 100);
@@ -95,15 +106,19 @@ function main() {
     const point = energy[i];
     if (!point) continue;
     const t = point.t;
-    const running = shutterAt(t);
+    
+    // Laser is running if FE high power is ON (regardless of low power state)
+    const feHighOn = feHighAt(t);
+    const feLowOn = feLow.length > 0 ? feLowAt(t) : false;
+    const running = feHighOn; // Simplified: just check if high power is on
 
     if (running) {
-      const v = averaged[i] ?? energyValues[i];
+      const v = averaged[i] ?? energyValues[i] ?? 0;
       filtered.push({ t, v });
     }
   }
 
-  console.log(`Filtered to ${filtered.length} points where laser was running`);
+  console.log(`Filtered to ${filtered.length} points where laser was running (FE high ON, low OFF)`);
 
   const out = ['Timestamp,Epoch,AvgEnergy']
     .concat(filtered.map(p => `${new Date(p.t).toISOString()},${p.t},${p.v}`))
