@@ -5,8 +5,7 @@ type DownloadFormat = 'csv' | 'json';
 
 export interface DownloadOptions {
   pv: string;
-  theStart: string;
-  theEnd: string;
+  theDay: string;
   outputFile: string; // e.g., "data.csv"
   pemPath: string; // path to certificate PEM file
   hostname?: string; // default: servicestatus.eli-beams.eu
@@ -30,8 +29,7 @@ function createHttpsAgent(pemPath: string, rejectUnauthorized: boolean = true): 
 export async function downloadPVData(options: DownloadOptions): Promise<void> {
   const {
     pv,
-    theStart,
-    theEnd,
+    theDay,
     outputFile,
     pemPath,
     hostname = 'servicestatus.eli-beams.eu',
@@ -42,7 +40,7 @@ export async function downloadPVData(options: DownloadOptions): Promise<void> {
 
   const httpsAgent = createHttpsAgent(pemPath, rejectUnauthorized);
   // https://servicestatus.eli-beams.eu:7000/variable/retrieve/L3-SBW4-PM311:Energy?startDate=2023-06-01&endDate=2023-06-06&format=html
-  const path = `/variable/retrieve/${encodeURIComponent(pv)}?startDate=${encodeURIComponent(theStart)}&endDate=${encodeURIComponent(theEnd)}&format=${encodeURIComponent(format)}`;
+  const path = `/variable/retrieve/${encodeURIComponent(pv)}?fullday=${encodeURIComponent(theDay)}&format=${encodeURIComponent(format)}`;
 
   const requestOptions: https.RequestOptions = {
     hostname,
