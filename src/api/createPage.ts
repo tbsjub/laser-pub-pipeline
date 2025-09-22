@@ -42,6 +42,7 @@ async function createPage(
         headers: {
           Authorization: `Basic ${authData}`,
           'Content-Type': 'application/json',
+          'X-Atlassian-Token': 'no-check',
         },
         httpsAgent: new https.Agent({
           rejectUnauthorized: false,

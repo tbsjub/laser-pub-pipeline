@@ -4,6 +4,11 @@ node_modules/
 # environment files
 .env
 .env.local
+src/geant_issue.pem
+
+*.csv
+*.png
+*.json
 
 # build output
 /dist

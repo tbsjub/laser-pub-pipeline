@@ -193,17 +193,6 @@ console.log(`Index new length: ${index_new.length}`);
 console.log(`Shutter data sample:`, shutter_numeric.slice(0, 10));
 console.log(`Power data sample:`, power.slice(0, 10));
 
-for (let i = 5; i < 22; i++) {
-    console.log("Time: ", rundata.Time?.[i]);
-    console.log("pwr_time: ", pwr_time[i]);
-    console.log("av_power: ", av_power[i]);
-    console.log("av_low_power: ", av_low_power[i]);
-    console.log("shutter_good: ", shutter_good[i]);
-    console.log("shutter_low: ",shutter_low[i]);
-    console.log("shutter_med: ",shutter_med[i]);
-    console.log("===***********************===");
-}
-console.log("=========================");
 
 // High power plots, one per day - MATLAB equivalent approach
 for (const run_day of run_days) {

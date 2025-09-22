@@ -1,13 +1,19 @@
+<ac:structured-macro ac:name="toc">
+  <ac:parameter ac:name="printable">true</ac:parameter>
+  <ac:parameter ac:name="style">disc</ac:parameter>
+  <ac:parameter ac:name="maxLevel">4</ac:parameter>
+</ac:structured-macro>
+
 <table style="width:100%; border-collapse: collapse;" data-layout="default">
     <tbody>
       <tr>
         <td style="border:1px solid #bbb; padding:8px;" colspan="2">
-          <h3 style="margin:0;"><%= locals.title || 'L1 ALLEGRA user time performance report' %></h3>
+          <h2 style="margin:0;"><%= locals.title || 'L1 ALLEGRA user time performance report' %></h2>
         </td>
         <td style="border:1px solid #bbb; padding:8px;" colspan="2">
           <div style="font-size:12px; line-height:1.4;">
-            <div><strong>User campaign:</strong> <%= locals.userCampaign || '' %></div>
-            <div><%= locals.weeksLabel || '' %></div>
+            <div><h3>User campaign:</h3> <%= locals.userCampaign || '' %></div>
+            <div><%= locals.daysLabel || '' %></div>
             <div><%= locals.dateRange || '' %></div>
           </div>
         </td>
@@ -16,7 +22,7 @@
       <!-- Requested specifications -->
       <tr>
         <td style="border:1px solid #bbb; padding:6px; background:#f3f3f3;" colspan="4">
-          <strong>REQUESTED SPECIFICATIONS</strong>
+          <h3>REQUESTED SPECIFICATIONS</h3>
         </td>
       </tr>
       <tr>
@@ -35,18 +41,18 @@
       <!-- Hour count -->
       <tr>
         <td style="border:1px solid #bbb; padding:6px; background:#f3f3f3;" colspan="4">
-          <strong>HOUR COUNT</strong>
+          <h3>HOUR COUNT</h3>
         </td>
       </tr>
       <tr>
-        <td style="border:1px solid #bbb; padding:6px; width:25%;"><strong>TOTAL ACTIVE DAYS:</strong></td>
-        <td style="border:1px solid #bbb; padding:6px; width:25%;"><strong>TOTAL ACTIVE HOURS:</strong></td>
+        <td style="border:1px solid #bbb; padding:6px; width:25%;"><h3>TOTAL ACTIVE DAYS:</h3></td>
+        <td style="border:1px solid #bbb; padding:6px; width:25%;"><h3>TOTAL ACTIVE HOURS:</h3></td>
         <td style="border:1px solid #bbb; padding:6px; width:25%;">
-          <strong>USED ALIGNMENT BEAMTIME HOURS:</strong>
+          <h3>USED ALIGNMENT BEAMTIME HOURS:</h3>
           <div style="font-size:12px;">Main number from the archiver (number in brackets from the operator log)</div>
         </td>
         <td style="border:1px solid #bbb; padding:6px; width:25%;">
-          <strong>USED HIGH POWER BEAMTIME HOURS:</strong>
+          <h3>USED HIGH POWER BEAMTIME HOURS:</h3>
           <div style="font-size:12px;">Main number from the archiver (number in brackets from the operator log)</div>
         </td>
       </tr>
@@ -54,42 +60,44 @@
         <td style="border:1px solid #bbb; padding:6px;"><%= locals.totalActiveDays ?? '' %></td>
         <td style="border:1px solid #bbb; padding:6px;"><%= locals.totalActiveHours ?? '' %></td>
         <td style="border:1px solid #bbb; padding:6px;">
-          <%= locals.usedAlignmentBeamtimeHours ?? '' %>
+          <%= locals.usedAlignmentBeamtimeHoursMainNumberFromTheArchiverNumberInBracketsFormTheOperatorLog ?? '' %>
         </td>
         <td style="border:1px solid #bbb; padding:6px;">
-          <%= locals.usedHighPowerBeamtimeHours ?? '' %>
+          <%= locals.usedHighPowerBeamtimeHoursMainNumberFromTheArchiverNumberInBracketsFormTheOperatorLog ?? '' %>
         </td>
       </tr>
   
       <!-- Energy graphs -->
       <tr>
         <td style="border:1px solid #bbb; padding:6px; background:#f3f3f3;" colspan="4">
-          <strong>ENERGY GRAPHS</strong>
+          <h3>ENERGY GRAPHS</h3>
           <div style="font-size:12px;">Time Zone: <%= locals.timeZone || '' %></div>
         </td>
       </tr>
-      <% if (locals.weeks && Array.isArray(locals.weeks) && locals.weeks.length) { %>
-        <% locals.weeks.forEach(function(week){ %>
+      <% if (locals.days && Array.isArray(locals.days) && locals.days.length) { %>
+        <% locals.days.forEach(function(day){ %>
           <tr>
-            <td style="border:1px solid #bbb; padding:6px;" colspan="4"><strong>WEEK <%= week.number || '' %></strong></td>
+            <td style="border:1px solid #bbb; padding:6px;" colspan="4"><h4>DAY <%= day.number || '' %></h4></td>
           </tr>
           <tr>
-            <td style="border:1px solid #bbb; padding:6px; height:140px;" colspan="4">
-              <% if (week.graphUrl) { %>
-                <img src="<%= week.graphUrl %>" alt="Week <%= week.number || '' %> energy graph" style="max-width:100%; height:auto;" />
+            <td style="border:1px solid #bbb; padding:6px; min-height:300px;" colspan="4">
+              <% if (day.graphUrl) { %>
+                <ac:image ac:align="center" ac:width="800" ac:height="400" ac:alt="Day <%= day.number || '' %> energy graph">
+                  <ri:attachment ri:filename="<%= day.graphUrl %>" />
+                </ac:image>
               <% } %>
             </td>
           </tr>
         <% }); %>
       <% } else { %>
         <tr>
-          <td style="border:1px solid #bbb; padding:6px; height:160px;" colspan="4"></td>
+          <td style="border:1px solid #bbb; padding:6px; min-height:300px;" colspan="4"></td>
         </tr>
       <% } %>
   
       <!-- Dazzler settings -->
       <tr>
-        <td style="border:1px solid #bbb; padding:6px; background:#f3f3f3;" colspan="4"><strong>DAZZLER SETTINGS</strong></td>
+        <td style="border:1px solid #bbb; padding:6px; background:#f3f3f3;" colspan="4"><h3>DAZZLER SETTINGS</h3></td>
       </tr>
       <tr>
         <td style="border:1px solid #bbb; padding:6px;" colspan="4">
@@ -108,19 +116,20 @@
       <!-- Beam Profile -->
       <tr>
         <td style="border:1px solid #bbb; padding:6px; background:#f3f3f3;" colspan="4">
-          <strong>BEAM PROFILE</strong>
+          <h3>NEAR FIELD PROFILE</h3>
         </td>
       </tr>
-      <% if (locals.weeks && Array.isArray(locals.weeks) && locals.weeks.length) { %>
-        <% locals.weeks.forEach(function(week){ %>
+      <% if (locals.days && Array.isArray(locals.days) && locals.days.length) { %>
+        <% locals.days.forEach(function(day){ %>
           <tr>
-            <td style="border:1px solid #bbb; padding:6px;" colspan="4"><strong>WEEK <%= week.number || '' %></strong></td>
+            <td style="border:1px solid #bbb; padding:6px;" colspan="4"><h4>DAY <%= day.number || '' %></h4></td>
           </tr>
           <tr>
-            <td style="border:1px solid #bbb; padding:6px; height:200px;" colspan="4">
-              <% if (week.beamProfileGraph) { %>
-                <img src="<%= week.beamProfileGraph %>" alt="Week <%= week.number || '' %> beam profile graph" style="max-width:100%; height:auto;" />
-              <% } else { %>
+            <td style="border:1px solid #bbb; padding:6px; min-height:400px;" colspan="4">
+              <% if (day.nearFieldProfileGraph) { %>
+                <ac:image ac:align="center" ac:width="800" ac:height="400" ac:alt="Day <%= day.number || '' %> beam profile graph">
+                  <ri:attachment ri:filename="<%= day.nearFieldProfileGraph %>" />
+                </ac:image>
                 <div style="text-align:center; color:#666; padding:50px;">Beam Profile Graph Placeholder</div>
               <% } %>
             </td>
@@ -128,7 +137,7 @@
         <% }); %>
       <% } else { %>
         <tr>
-          <td style="border:1px solid #bbb; padding:6px; height:200px;" colspan="4">
+          <td style="border:1px solid #bbb; padding:6px; min-height:400px;" colspan="4">
             <div style="text-align:center; color:#666; padding:50px;">No beam profile data available</div>
           </td>
         </tr>
@@ -137,18 +146,20 @@
       <!-- Beam Pointing (RMS BY DAY) -->
       <tr>
         <td style="border:1px solid #bbb; padding:6px; background:#f3f3f3;" colspan="4">
-          <strong>BEAM POINTING (RMS BY DAY)</strong>
+          <h3>FAR FIELD PROFILE</h3>
         </td>
       </tr>
-      <% if (locals.weeks && Array.isArray(locals.weeks) && locals.weeks.length) { %>
-        <% locals.weeks.forEach(function(week){ %>
+      <% if (locals.days && Array.isArray(locals.days) && locals.days.length) { %>
+        <% locals.days.forEach(function(day){ %>
           <tr>
-            <td style="border:1px solid #bbb; padding:6px;" colspan="4"><strong>WEEK <%= week.number || '' %></strong></td>
+            <td style="border:1px solid #bbb; padding:6px;" colspan="4"><h4>DAY <%= day.number || '' %></h4></td>
           </tr>
           <tr>
-            <td style="border:1px solid #bbb; padding:6px; height:200px;" colspan="4">
-              <% if (week.beamPointingGraph) { %>
-                <img src="<%= week.beamPointingGraph %>" alt="Week <%= week.number || '' %> beam pointing graph" style="max-width:100%; height:auto;" />
+            <td style="border:1px solid #bbb; padding:6px; min-height:400px;" colspan="4">
+              <% if (day.farFieldProfileGraph) { %>
+                <ac:image ac:align="center" ac:width="800" ac:height="400" ac:alt="Day <%= day.number || '' %> beam pointing graph">
+                  <ri:attachment ri:filename="<%= day.farFieldProfileGraph %>" />
+                </ac:image>
               <% } else { %>
                 <div style="text-align:center; color:#666; padding:50px;">Beam Pointing Graph Placeholder</div>
               <% } %>
@@ -157,7 +168,7 @@
         <% }); %>
       <% } else { %>
         <tr>
-          <td style="border:1px solid #bbb; padding:6px; height:200px;" colspan="4">
+          <td style="border:1px solid #bbb; padding:6px; min-height:400px;" colspan="4">
             <div style="text-align:center; color:#666; padding:50px;">No beam pointing data available</div>
           </td>
         </tr>
@@ -166,7 +177,7 @@
       <!-- Incidents -->
       <tr>
         <td style="border:1px solid #bbb; padding:6px; background:#f3f3f3;" colspan="4">
-          <strong>INCIDENTS</strong>
+          <h3>INCIDENTS</h3>
         </td>
       </tr>
       <tr>

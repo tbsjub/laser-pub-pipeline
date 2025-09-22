@@ -4,8 +4,19 @@ import { authData, CONF_URL } from '../config/confluenceConfig.js';
 
 interface SearchPageResponse {
   results: {
-    id: string;
+    id?: string;
     title: string;
+    content?: {
+      id: string;
+      title: string;
+      type: string;
+      status: string;
+      _links?: {
+        webui: string;
+        self: string;
+        tinyui: string;
+      };
+    };
     version?: {
       number: number;
     };
@@ -34,6 +45,7 @@ export default async function searchPage(
       {
         headers: {
           Authorization: `Basic ${authData}`,
+          'X-Atlassian-Token': 'no-check',
         },
         httpsAgent: new https.Agent({ rejectUnauthorized: false }),
       }
@@ -46,8 +58,20 @@ export default async function searchPage(
     }
 
     const page = results[0];
-    console.log(`>>> Found page: "${page.title}" (ID: ${page.id})`);
-    return { id: page.id, title: page.title };
+    
+    // Handle the nested structure - ID is under content, title is at top level
+    const pageId = page!.content?.id || page!.id;
+    const pageTitle = page!.title;
+    
+    console.log(`>>> Found page: "${pageTitle}" (ID: ${pageId})`);
+    
+    if (!pageId) {
+      console.error('>>> ERROR: Page found but ID is undefined!');
+      console.error('>>> Full page object:', page);
+      return null;
+    }
+    
+    return { id: pageId, title: pageTitle };
   } catch (error: unknown) {
     const err = error as { response?: { data?: unknown }; message?: string };
     console.error('Failed to search page:', err.response?.data || err.message);

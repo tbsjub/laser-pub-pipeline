@@ -38,6 +38,7 @@ export default async function updatePage(
       {
         headers: {
           Authorization: `Basic ${authData}`,
+          'X-Atlassian-Token': 'no-check',
         },
         httpsAgent: new https.Agent({ rejectUnauthorized: false }),
       }
