@@ -8,7 +8,8 @@ import getData from './api/getData.js';
 import createPage from './api/createPage.js';
 import rundataCreation from './data/rundataCreation.js';
 import userRunCode from './templates/user_run_code.js';
-import searchPage from './api/searchPage.js'; 
+import searchPage from './api/searchPage.js';
+import { parse } from 'csv-parse/sync'; 
 
 
 // const PVS: string[] = [ "L3-SBW4-PM311:Energy",
@@ -28,6 +29,43 @@ import searchPage from './api/searchPage.js';
 
 var PVS: string[] = [];
 
+// Function to read and parse PV information from CSV
+function readPVInformation(): Array<{
+  pv: string;
+  explanation: string;
+  unit: string;
+  source: string;
+  type: string;
+  userData: string;
+  csIntegration: string;
+  triggered: string;
+  physicalLocation: string;
+}> {
+  try {
+    const csvPath = './src/data/Useful PVs.csv';
+    const csvContent = readFileSync(csvPath, 'utf-8');
+    const records = parse(csvContent, {
+      columns: true,
+      skip_empty_lines: true,
+      trim: true
+    });
+    
+    return records.map((record: any) => ({
+      pv: record.PV || '',
+      explanation: record.Explanation || '',
+      unit: record.Unit || '',
+      source: record.Source || '',
+      type: record.Type || '',
+      userData: record['User data'] || '',
+      csIntegration: record['CS Integration'] || '',
+      triggered: record['Triggered?'] || '',
+      physicalLocation: record['Physical Location'] || ''
+    }));
+  } catch (error) {
+    console.warn(`Failed to read PV information from CSV: ${error}`);
+    return [];
+  }
+}
 
 // Validation functions
 function validatePageData(data: Record<string, string>): void {
@@ -286,9 +324,16 @@ async function renderAndUpdatePage(data: Record<string, string>, run_days: numbe
   try {
     console.log('>>> 4) Rendering EJS template with merged data...');
     
+    // Read PV information from CSV and filter to only include PVs used in this report
+    const allPVInformation = readPVInformation();
+    const pvInformation = allPVInformation.filter(pv => PVS.includes(pv.pv));
+    console.log(`Loaded ${allPVInformation.length} total PV definitions from CSV`);
+    console.log(`Filtered to ${pvInformation.length} PVs used in this report: ${PVS.join(', ')}`);
+
     // Merge Confluence data with template data
     const mergedData = {
       ...data,  // All the data from Confluence page (title, userCampaign, dateRange, etc.)
+      pvInformation, // Add filtered PV information from CSV
       days: run_days.map(day => ({
         number: day.toString(),
         // Use base64 encoded images for direct embedding

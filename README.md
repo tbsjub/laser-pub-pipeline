@@ -49,8 +49,6 @@ If any variable is missing, the app throws: “Missing required environment vari
 Run from the `src/` directory:
 
 - `npm run dev` — execute `src/index.ts` with ts-node (recommended during development)
-- `npm run test:basic` — run a basic database-page probe (`src/testDatabase.ts`)
-- `npm run test:database` — run the comprehensive database access test (`src/comprehensiveDatabaseTest.ts <database_id>`)
 - `npm run build` — compile TypeScript
 - `npm start` — run compiled code (expects `dist/index.js`; see note in Troubleshooting)
 
@@ -108,8 +106,19 @@ File: `src/api/getPage.ts`
 ```ts
 import getPage from './api/getPage.js';
 
-await getPage(1682210847); // writes `.usefullPVS.html` with page storage HTML
+await getPage(1682210847); 
 ```
+
+#### Search a page based on it's title - `searchPage`
+
+File: `src/api/searchPage.ts`
+
+```ts
+import searchPage from './api/searchPage.js';
+
+await searchPage('the title', 'CS', 16564865);
+```
+
 
 
 ### EJS Templates
@@ -136,19 +145,13 @@ const json = parseConfluenceTable('<table>...');
 
 #### Experimental database helpers
 
-Files: `src/api/getDatabase.js`, `src/api/advancedDatabaseAccess.ts`
+Files: `src/api/getDatabase.js`
 
-- Try to fetch a “database” page and dump its storage HTML to `./usefulPVS.html`
+- Try to fetch a “database” page and dump its storage HTML to `./data/nameOfthePV`
 - Attempt multiple known/guess endpoints and export modes
 - Parse discovered tables (via Cheerio) into JSON
 
-Comprehensive test runner:
 
-```bash
-npm run test:database -- 1234567890
-```
-
-Outputs: `export_attempt_*.html`, `export_database_*.json`, `endpoint_*.json` (depending on what’s accessible in your Confluence).
 
 
 ### Example entry point

@@ -10,6 +10,7 @@ import rundataCreation from './data/rundataCreation.js';
 import userRunCode from './templates/user_run_code.js';
 import searchPage from './api/searchPage.js';
 import uploadAttachment from './api/uploadAttachment.js'; 
+import { parse } from 'csv-parse/sync'; 
 
 
 // const PVS: string[] = [ "L3-SBW4-PM311:Energy",
@@ -104,6 +105,45 @@ function validatePVs(pvs: string): string[] {
   return pvList;
 }
 
+function readPVInformation(): Array<{
+  pv: string;
+  explanation: string;
+  unit: string;
+  source: string;
+  type: string;
+  userData: string;
+  csIntegration: string;
+  triggered: string;
+  physicalLocation: string;
+}> {
+  try {
+    const csvPath = './data/Useful PVs.csv';
+    const csvContent = readFileSync(csvPath, 'utf-8');
+    const records = parse(csvContent, {
+      columns: true,
+      skip_empty_lines: true,
+      trim: true
+    });
+    
+    return records.map((record: any) => ({
+      pv: record.PV || '',
+      explanation: record.Explanation || '',
+      unit: record.Unit || '',
+      source: record.Source || '',
+      type: record.Type || '',
+      userData: record['User data'] || '',
+      csIntegration: record['CS Integration'] || '',
+      triggered: record['Triggered?'] || '',
+      physicalLocation: record['Physical Location'] || ''
+    }));
+  } catch (error) {
+    console.warn(`Failed to read PV information from CSV: ${error}`);
+    return [];
+  }
+}
+
+
+
 async function run(): Promise<void> {
   const pageId = 1687519372; // set your test page ID here
   const templateId = 1734541382;
@@ -114,14 +154,14 @@ async function run(): Promise<void> {
   try {
     // Ensure data directory exists
     if (!fs.existsSync('./data')) {
-      console.log('📁 Creating data directory...');
+      console.log('Creating data directory...');
       fs.mkdirSync('./data', { recursive: true });
     }
 
     console.log('>>> 1) Downloading page...');
     try {
       await getPage(pageId, downloadedHtmlPath);
-      console.log('✅ Page downloaded successfully');
+      console.log('Page downloaded successfully');
     } catch (error) {
       throw new Error(`Failed to download page ${pageId}: ${error}`);
     }
@@ -163,6 +203,10 @@ async function run(): Promise<void> {
     // Parse and validate run days
     const run_days = validateRunDays(data.daysCommaSeparated!);
     console.log(`Validated run days: ${run_days.join(', ')}`);
+
+    // Read PV information
+    const pvInformation = readPVInformation();
+    console.log(`Read ${pvInformation.length} PV information records`);
 
     // Process the days
     await processDays(run_days, theStart, theEnd);
@@ -338,30 +382,36 @@ async function renderAndUpdatePage(data: Record<string, string>, run_days: numbe
           try {
             await uploadAttachment(newPageId, att.path, att.filename);
             uploadedAttachments.push(att.filename);
-            console.log(`✅ Uploaded ${att.filename}`);
+            console.log(`Uploaded ${att.filename}`);
             
             // Add a small delay to ensure Confluence processes the attachment
             await new Promise(resolve => setTimeout(resolve, 1000));
           } catch (error) {
-            console.warn(`⚠️ Failed to upload ${att.filename}:`, error);
+            console.warn(`Failed to upload ${att.filename}:`, error);
           }
         } else {
-          console.warn(`⚠️ Missing file: ${att.path}`);
+          console.warn(`Missing file: ${att.path}`);
         }
       }
     }
     
-    console.log(`✅ All attachments uploaded successfully: ${uploadedAttachments.join(', ')}`);
+    console.log(`All attachments uploaded successfully: ${uploadedAttachments.join(', ')}`);
     
     // Add a delay to ensure all attachments are processed by Confluence
     console.log('>>> Waiting for Confluence to process attachments...');
     await new Promise(resolve => setTimeout(resolve, 3000));
     
     console.log('>>> 6) Rendering EJS template with attachment references...');
+
+    // Read PV information
+    const allPVInformation = readPVInformation();
+    const pvInformation = allPVInformation.filter(pv => PVS.includes(pv.pv));
+    console.log(`Loaded ${allPVInformation.length} total PV definitions from CSV`);
     
     // Merge Confluence data with template data - now using attachment references
     const mergedData = {
       ...data,  // All the data from Confluence page (title, userCampaign, dateRange, etc.)
+      pvInformation: pvInformation,
       days: run_days.map(day => ({
         number: day.toString(),
         // Images are now uploaded as attachments, reference the filenames
@@ -384,7 +434,7 @@ async function renderAndUpdatePage(data: Record<string, string>, run_days: numbe
     let rendered: string;
     try {
       rendered = ejs.render(template, mergedData);
-      console.log('✅ EJS template rendered successfully');
+      console.log('EJS template rendered successfully');
       
       // Debug: Log a sample of the rendered content to check attachment syntax
       const sampleMatch = rendered.match(/<ac:image[^>]*>[\s\S]*?<\/ac:image>/);
@@ -407,7 +457,7 @@ async function renderAndUpdatePage(data: Record<string, string>, run_days: numbe
     
     try {
       await updatePage(newPageId, title, rendered);
-      console.log('✅ Page updated successfully with attachments');
+      console.log('Page updated successfully with attachments');
     } catch (error) {
       throw new Error(`Failed to update page: ${error}`);
     }

@@ -1,7 +1,7 @@
 <ac:structured-macro ac:name="toc">
   <ac:parameter ac:name="printable">true</ac:parameter>
   <ac:parameter ac:name="style">disc</ac:parameter>
-  <ac:parameter ac:name="maxLevel">4</ac:parameter>
+  <ac:parameter ac:name="maxLevel">3</ac:parameter>
 </ac:structured-macro>
 
 <table style="width:100%; border-collapse: collapse;" data-layout="default">
@@ -21,7 +21,7 @@
   
       <!-- Requested specifications -->
       <tr>
-        <td style="border:1px solid #bbb; padding:6px; background:#f3f3f3;" colspan="4">
+        <td style="border:1px solid #bbb; padding:6px;" colspan="4">
           <h3>REQUESTED SPECIFICATIONS</h3>
         </td>
       </tr>
@@ -45,14 +45,14 @@
         </td>
       </tr>
       <tr>
-        <td style="border:1px solid #bbb; padding:6px; width:25%;"><h3>TOTAL ACTIVE DAYS:</h3></td>
-        <td style="border:1px solid #bbb; padding:6px; width:25%;"><h3>TOTAL ACTIVE HOURS:</h3></td>
+        <td style="border:1px solid #bbb; padding:6px; width:25%;"><h4>TOTAL ACTIVE DAYS:</h4></td>
+        <td style="border:1px solid #bbb; padding:6px; width:25%;"><h4>TOTAL ACTIVE HOURS:</h4></td>
         <td style="border:1px solid #bbb; padding:6px; width:25%;">
-          <h3>USED ALIGNMENT BEAMTIME HOURS:</h3>
+          <h4>USED ALIGNMENT BEAMTIME HOURS:</h4>
           <div style="font-size:12px;">Main number from the archiver (number in brackets from the operator log)</div>
         </td>
         <td style="border:1px solid #bbb; padding:6px; width:25%;">
-          <h3>USED HIGH POWER BEAMTIME HOURS:</h3>
+          <h4>USED HIGH POWER BEAMTIME HOURS:</h4>
           <div style="font-size:12px;">Main number from the archiver (number in brackets from the operator log)</div>
         </td>
       </tr>
@@ -66,6 +66,68 @@
           <%= locals.usedHighPowerBeamtimeHoursMainNumberFromTheArchiverNumberInBracketsFormTheOperatorLog ?? '' %>
         </td>
       </tr>
+
+      <!-- About the PVs -->
+       <tr>
+        <td style="border:1px solid #bbb; padding:6px; background:#f3f3f3;" colspan="4">
+          <h3>ABOUT THE PVs</h3>
+          <ac:structured-macro ac:name="expand">
+            <ac:parameter ac:name="title">PV Details</ac:parameter>
+            <ac:rich-text-body>
+              <table style="width:100%; border-collapse: collapse;" data-layout="default">
+                <tbody>
+       <% if (locals.pvInformation && Array.isArray(locals.pvInformation) && locals.pvInformation.length > 0) { %>
+         <% locals.pvInformation.forEach(function(pv){ %>
+          <tr>
+            <td style="border:1px solid #bbb; padding:6px; font-weight:bold; width:15%; background-color:#a19999;"><strong>PV Name</strong></td>
+            <td style="border:1px solid #bbb; padding:6px; font-family:monospace; font-size:11px; background-color:#a19999;" colspan="3"><h4><%= pv.pv || '' %></h4></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #bbb; padding:6px; font-weight:bold; width:15%;">Explanation</td>
+            <td style="border:1px solid #bbb; padding:6px; font-size:11px;" colspan="3"><%= pv.explanation || '' %></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #bbb; padding:6px; font-weight:bold; width:15%;">Unit</td>
+            <td style="border:1px solid #bbb; padding:6px; font-size:11px;" colspan="3"><%= pv.unit || '' %></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #bbb; padding:6px; font-weight:bold; width:15%;">Source</td>
+            <td style="border:1px solid #bbb; padding:6px; font-size:11px;" colspan="3"><%= pv.source || '' %></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #bbb; padding:6px; font-weight:bold; width:15%;">Type</td>
+            <td style="border:1px solid #bbb; padding:6px; font-size:11px;" colspan="3"><%= pv.type || '' %></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #bbb; padding:6px; font-weight:bold; width:15%;">User Data</td>
+            <td style="border:1px solid #bbb; padding:6px; font-size:11px;" colspan="3"><%= pv.userData || '' %></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #bbb; padding:6px; font-weight:bold; width:15%;">CS Integration</td>
+            <td style="border:1px solid #bbb; padding:6px; font-size:11px;" colspan="3"><%= pv.csIntegration || '' %></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #bbb; padding:6px; font-weight:bold; width:15%;">Triggered</td>
+            <td style="border:1px solid #bbb; padding:6px; font-size:11px;" colspan="3"><%= pv.triggered || '' %></td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #bbb; padding:6px; font-weight:bold; width:15%;">Physical Location</td>
+            <td style="border:1px solid #bbb; padding:6px; font-size:11px;" colspan="3"><%= pv.physicalLocation || '' %></td>
+          </tr>
+         <% }); %>
+       <% } else { %>
+         <tr>
+           <td style="border:1px solid #bbb; padding:6px;" colspan="4">
+             <div style="text-align:center; color:#666; padding:20px;">No PV information available</div>
+           </td>
+         </tr>
+       <% } %>
+                </tbody>
+              </table>
+            </ac:rich-text-body>
+          </ac:structured-macro>
+        </td>
+       </tr>
   
       <!-- Energy graphs -->
       <tr>
